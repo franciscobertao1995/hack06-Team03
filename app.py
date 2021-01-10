@@ -39,7 +39,6 @@ with open('dtypes.pickle', 'rb') as fh:
 ########################################
 ########################################
 # Input validation functions
-
 def check_valid_columns(observation):
     """
         Validates that our observation only has valid columns
@@ -81,6 +80,32 @@ def check_valid_columns(observation):
 
     return True, ""
 
+def check_column_types(observation):
+    
+    column_types = {
+        "observation_id": int,
+        "age": int,
+        "workclass": str,
+        "fnlwgt": int,
+        "education": str,
+        "education-num": int,
+        "marital-status": str,
+        "occupation": str,
+        "relationship": str,
+        "race": str,
+        "sex": str,
+        "capital-gain": int,
+        "capital-loss": int,
+        "hours-per-week": int,
+        "native-country":str,
+    }
+        
+    for col, type_ in column_types.items():
+        if not isinstance(observation[col], type_):
+            error = "Field {} is {}, while it should be {}".format(col,type(observation[col]),type_)
+            return False, error
+    return True, ""    
+        
 def check_numerical_values(observation):
     """
         Validates that observation contains valid age value 
@@ -144,6 +169,11 @@ def predict():
     # verification routines
     valid_columns_ok, error = check_valid_columns(obs_dict)
     if not valid_columns_ok:
+        response = {'error': error}
+        return jsonify(response)
+    
+    valid_types_ok, error = check_column_types(obs_dict)
+    if not valid_types_ok:
         response = {'error': error}
         return jsonify(response)
     
